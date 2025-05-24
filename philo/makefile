@@ -1,7 +1,7 @@
-SRCS = parsing_utils.c  philo.c 
+SRCS = parsing_utils.c  philo.c libft_functions.c
 
 RM	= rm -rf
-CFLAGS = -Wall -Wextra -Werror -pthread
+CFLAGS = -Wall -Wextra -Werror -pthread -g3
 CC = cc
 OBJF = $(SRCS:.c=.o)
 NAME = philo
@@ -21,7 +21,7 @@ $(NAME) : $(OBJF)
 			@echo $(ITALIC)$(GREEN) "     - all the philosophers are sitting on the table" $(RESET)
 			@$(CC) $(CFLAGS) $(OBJF) -o $(NAME)
 
-clean	: 
+clean	:
 			@echo $(ITALIC)$(GRAY) "     - deleting the object files..." $(RESET)
 			@$(RM) $(OBJF)
 
@@ -31,5 +31,5 @@ fclean	: clean
 
 re		: fclean all
 
-.PHONY	: all clean fclean re bonus 
+.PHONY	: all clean fclean re bonus
 .SECONDARY:

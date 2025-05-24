@@ -6,38 +6,102 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:30:52 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/21 11:54:47 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/24 17:36:54 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-long    ft_atoi(char *str)
+int check_arg(char *str, int key)
 {
-	int 	    i;
-	long	    d;
-	long        r;
+	int i;
 
-	i = 0;
-	d = 1;
-	r = 0;
-	while ((str[i] >= '\t' && str[i] <= '\r' ) || str[i] == 32)
-		i++;
-	if (str[i] == '+' || str[i] == '-')
+	i = -1;
+	if (str[0] == '-' || str[0] == '+')
 	{
-		if (str[i] == '-')
-			d = -1;
-		i++;
+		if (str[0] == '-')
+		{
+			printf(NEGATIVE);
+			return (-1);
+		}
+		i = 0;
 	}
-	while (str[i] >= '0' && str[i] <= '9')
+	while (str[++i])
+		if (!ft_isdigit(str[i]))
+		{
+			printf(NOT_VALID);
+			return (-1);
+		}
+	if (ft_atoi(str) > INT_MAX || ft_atoi(str) <= 0)
 	{
-		r = r * 10 + (str[i] - '0');
-		i++;
+		if (key == 5 && ft_atoi(str) == 0)
+			return(0);
+		return (printf(NOT_LOGIC), -1);
 	}
-	return (r * d);
+	return (0);
 }
 
-int	ft_isdigit(int c)
+void	fill_private_philo_data(t_data *data)
 {
-	return (c > 47 && c < 58);
+	int	i;
+
+	i = -1;
+	while(++i < data->nb_philo)
+	{
+		data->philo[i].id = i + 1;
+		data->philo[i].count_meals = 0;
+		data->philo[i].last_time_eat = 0;
+		data->philo[i].data = data;
+	}
+}
+
+t_data *fill_struct(char **av)
+{
+	t_data *philo;
+
+	philo = (t_data *)malloc(sizeof(t_data));
+	if (!philo)
+		return (NULL);
+	philo->nb_philo = ft_atoi(av[1]);
+	philo->time_to_die = ft_atoi(av[2]);
+	philo->time_to_eat = ft_atoi(av[3]);
+	philo->time_to_sleep = ft_atoi(av[4]);
+	philo->is_dead = NO;
+	philo->philo = malloc((philo->nb_philo) * sizeof(t_philo));
+	if (av[5])
+		(philo)->nb_eat_time = ft_atoi(av[5]);
+	else
+		(philo)->nb_eat_time = -1;
+	(philo)->mutex = malloc((philo)->nb_philo * sizeof(pthread_mutex_t));
+	if (!(philo)->mutex)
+		return (NULL);
+	fill_private_philo_data(philo);
+	return (philo);
+}
+
+void	get_time(t_data **data)
+{
+	struct timeval	time;
+
+	gettimeofday(&time, NULL);
+	(*data)->start_time = (time.tv_sec * 1000) + (time.tv_usec / 1000);
+}
+
+t_data *ft_parsing(int ac, char **av)
+{
+	int i;
+	t_data *philo;
+
+	i = 0;
+	philo = NULL;
+	if (ac != 5 && ac != 6)
+	{
+		printf(ARG_NUMBER_ERR);
+		return (NULL);
+	}
+	while (av[++i])
+		if (check_arg(av[i], i) == -1)
+			return (NULL);
+	philo = fill_struct(av);
+	return (philo);
 }

@@ -6,81 +6,183 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:24:27 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/21 17:39:23 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/24 17:37:57 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void    check_arg(char *str)
+int init_mutex(t_data *philo)
 {
-    int i;
+	int i;
+	int checker;
 
-    i = -1;
-    if (str[0] == '-' || str[0] == '+')
-    {
-        if (str[0] == '-')
-        {
-            printf(NEGATIVE);
-            exit(EXIT_FAILURE);
-        }
-        str += 1;
-    }
-    while (str[++i])
-        if (!ft_isdigit(str[i]))
-        {
-            printf(NOT_VALID);
-            exit(EXIT_FAILURE);
-        }
-    if (ft_atoi(str) > INT_MAX || ft_atoi(str) == 0)
-    {
-        printf(NOT_LOGIC);
-        exit(EXIT_FAILURE);
-    }
+	i = -1;
+	while (++i < philo->nb_philo)
+	{
+		checker = pthread_mutex_init(&philo->mutex[i], NULL);
+		if (checker != 0)
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&philo->mutex[i]);
+			return (FAIL);
+		}
+	}
+	checker = pthread_mutex_init(&philo->mutex_printf, NULL);
+	if (checker != 0)
+	{
+		pthread_mutex_destroy(&philo->mutex_printf);
+		return (FAIL);
+	}
+	return (0);
 }
 
-t_philo fill_struct(char **av)
+long get_curr_time()
 {
-    t_philo philo;
+	struct timeval time;
 
-    philo.nb_philo = ft_atoi(av[1]);
-    philo.time_to_die = ft_atoi(av[2]);
-    philo.time_to_eat = ft_atoi(av[3]);
-    philo.time_to_sleep= ft_atoi(av[4]);
-    if (av[5])
-        philo.nb_eat_time= ft_atoi(av[5]);
-    return(philo);
+	gettimeofday(&time, NULL);
+	return ((long)(time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
-t_philo ft_parsing(int  ac, char **av)
+void complete_printing(int order, t_philo *philo) // no need
 {
-    int i;
-    t_philo philo;
+	long time;
 
-    i = 0;
-    if (ac != 5 && ac != 6)
-    {
-        printf(ARG_NUMBER_ERR);
-        exit(EXIT_FAILURE);
-    }
-    while (av[++i])
-        check_arg(av[i]);
-    philo = fill_struct(av);
-    return(philo);   
+	if (order == THINKING)
+	{
+		time = get_curr_time() - philo->data->start_time;
+		pthread_mutex_lock(&philo->data->mutex_printf);
+		printf(THINKING_MESSAGE, time, philo->id);
+		pthread_mutex_unlock(&philo->data->mutex_printf);
+	}
+	else if (order == SLEEPING)
+	{
+		time = get_curr_time() - philo->data->start_time;
+		pthread_mutex_lock(&philo->data->mutex_printf);
+		printf(SLEEPING_MESSAGE, time, philo->id);
+		pthread_mutex_unlock(&philo->data->mutex_printf);
+		usleep(philo->data->time_to_sleep * 1000);
+	}
 }
 
-
-int main (int ac, char **av)
+void print_situation(int order, t_philo *philo)
 {
-    t_philo ph_data;
+	long time;
 
-    ph_data = ft_parsing(ac, av);
-    printf("the number of philos is %d\n", ph_data.nb_philo);
-    printf("the time to die is %d\n", ph_data.time_to_die);
-    printf("the time to eat is %d\n", ph_data.time_to_eat);
-    printf("the time to sleep is %d\n", ph_data.time_to_sleep);
-    printf("the number of times each philo should eat is %d\n ", ph_data.nb_eat_time);
-        
-        
+	if (order == TAKE_FORK1)
+	{
+		time = get_curr_time() - philo->data->start_time;
+		pthread_mutex_lock(&philo->data->mutex_printf);
+		printf(FORK_MESSAGE, time, philo->id);
+		pthread_mutex_unlock(&philo->data->mutex_printf);
+	}
+	else if (order == TAKE_FORK2)
+	{
+		time = get_curr_time() - philo->data->start_time;
+		pthread_mutex_lock(&philo->data->mutex_printf);
+		printf(FORK_MESSAGE, time, philo->id);
+		printf(EATING_MESSAGE, time, philo->id);
+		philo->count_meals++;
+		pthread_mutex_unlock(&philo->data->mutex_printf);
+		usleep(philo->data->time_to_eat * 1000);
+	}
+	else
+		complete_printing(order, philo);
+}
 
+void mutex_lock_unlock_even(t_philo *philo, int key)
+{
+	if (key == LOCK)
+	{
+		pthread_mutex_lock(&philo->data->mutex[(philo->id + 1) % philo->data->nb_philo]);
+		print_situation(TAKE_FORK1, philo);
+		pthread_mutex_lock(&philo->data->mutex[philo->id]);
+		print_situation(TAKE_FORK2, philo);
+	}
+	else if (key == UNLOCK)
+	{
+		pthread_mutex_unlock(&philo->data->mutex[(philo->id + 1) % philo->data->nb_philo]);
+		pthread_mutex_unlock(&philo->data->mutex[philo->id]);
+	}
+}
+
+void mutex_lock_unlock_odd(t_philo *philo, int key)
+{
+	if (key == LOCK)
+	{
+		pthread_mutex_lock(&philo->data->mutex[philo->id]);
+		print_situation(TAKE_FORK1, philo);
+		pthread_mutex_lock(&philo->data->mutex[(philo->id + 1) % philo->data->nb_philo]);
+		print_situation(TAKE_FORK2, philo);
+	}
+	else if (key == UNLOCK)
+	{
+		pthread_mutex_unlock(&philo->data->mutex[philo->id]);
+		pthread_mutex_unlock(&philo->data->mutex[(philo->id + 1) % philo->data->nb_philo]);
+	}
+}
+
+int should_quit(t_philo *philo)
+{
+	if (philo->data->nb_eat_time != -1 && philo->count_meals == philo->data->nb_eat_time)
+		return (1);
+	return (0);
+}
+
+void *routine(void *dta)
+{
+	t_philo *philo = (t_philo *)dta;
+
+	if (philo->id % 2 == 0)
+		usleep(100);
+	while (!should_quit(philo))
+	{
+		if (philo->id % 2 == 0)
+		{
+			mutex_lock_unlock_even(philo, LOCK);
+			mutex_lock_unlock_even(philo, UNLOCK);
+		}
+		else
+		{
+			mutex_lock_unlock_odd(philo, LOCK);
+			mutex_lock_unlock_odd(philo, UNLOCK);
+		}
+		print_situation(SLEEPING, philo);
+		print_situation(THINKING, philo);
+	}
+	return (NULL);
+}
+
+int create_threads(t_data *data)
+{
+	int i;
+	int res;
+
+	i = -1;
+	get_time(&data);
+	while (++i < data->nb_philo)
+	{
+		res = pthread_create(&data->philo[i].thread_id, NULL, routine, &data->philo[i]);
+		if (res != 0)
+			return (FAIL);
+	}
+	return (SUCCESS);
+}
+
+int main(int ac, char **av)
+{
+	t_data *ph_data;
+	int i;
+
+	ph_data = ft_parsing(ac, av);
+	if (!ph_data)
+		return (EXIT_FAILURE);
+	else if (init_mutex(ph_data) == -1)
+		return (printf(MUTEX_FAIL), EXIT_FAILURE);
+	else if (create_threads(ph_data) == -1)
+		return (printf(THREAD_FAIL), EXIT_FAILURE);
+	i = -1;
+	while (++i < ph_data->nb_philo)
+		pthread_join(ph_data->philo[i].thread_id, NULL);
 }
