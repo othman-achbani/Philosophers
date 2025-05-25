@@ -50,8 +50,10 @@ void	fill_private_philo_data(t_data *data)
 	{
 		data->philo[i].id = i + 1;
 		data->philo[i].count_meals = 0;
-		data->philo[i].last_time_eat = 0;
+		data->philo[i].last_time_eat = get_curr_time();
 		data->philo[i].data = data;
+		data->philo[i].left_fork = &data->mutex[i];
+		data->philo[i].right_fork = &data->mutex[(i + 1) %  data->nb_philo];
 	}
 }
 

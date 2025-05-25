@@ -28,8 +28,10 @@ typedef struct s_philo
 {
 	int		 id;
 	pthread_t thread_id;
-	int last_time_eat;
+	unsigned long	 last_time_eat;
 	int count_meals;
+	pthread_mutex_t *left_fork;
+	pthread_mutex_t *right_fork;
 	t_data *data;
 } 		t_philo;
 
@@ -43,11 +45,15 @@ struct s_data
 	unsigned long	start_time;
 	unsigned long	current_time;
 	int				is_dead;
+	pthread_t		monitor_th_id;
 	pthread_mutex_t *mutex;
 	pthread_mutex_t	mutex_printf;
+	pthread_mutex_t mutex_lst_eat;
+	pthread_mutex_t mutex_death;
 	t_philo			*philo;
 } ;
 
+int should_quit(t_philo *philo);
 void	get_time(t_data **data);
 int check_arg(char *str, int key);
 t_data *ft_parsing(int ac, char **av);
@@ -55,6 +61,7 @@ t_data *fill_struct(char **av);
 void	fill_private_philo_data(t_data *data);
 long ft_atoi(char *str);
 int ft_isdigit(int c);
+long get_curr_time();
 
 
 #endif
