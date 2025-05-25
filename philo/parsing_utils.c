@@ -84,7 +84,13 @@ t_data *fill_struct(char **av)
 void	get_time(t_data **data)
 {
 	struct timeval	time;
+	int				i;
 
+	i = -1;
+	while (++i < (*data)->nb_philo)
+	{
+		(*data)->philo[i].last_time_eat = get_curr_time();
+	}
 	gettimeofday(&time, NULL);
 	(*data)->start_time = (time.tv_sec * 1000) + (time.tv_usec / 1000);
 }

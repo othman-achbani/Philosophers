@@ -34,6 +34,19 @@ int init_mutex(t_data *philo)
 	return (0);
 }
 
+void	wait_sleep(int	sleep_time, t_philo *philo)
+{
+	long	start;
+
+	start = get_curr_time();
+	while(get_curr_time() - start <= sleep_time)
+	{
+		if (should_quit(philo))
+			break;
+		usleep(100);
+	}
+}
+
 long get_curr_time()
 {
 	struct timeval time;
@@ -59,11 +72,11 @@ void complete_printing(int order, t_philo *philo)
 		pthread_mutex_lock(&philo->data->mutex_printf);
 		printf(SLEEPING_MESSAGE, time, philo->id);
 		pthread_mutex_unlock(&philo->data->mutex_printf);
-		usleep(philo->data->time_to_sleep * 1000);
+		wait_sleep(philo->data->time_to_sleep , philo);
 	}
 }
 
-void print_situation(int order, t_philo *philo)
+void 	print_situation(int order, t_philo *philo)
 {
 	long time;
 
@@ -83,8 +96,9 @@ void print_situation(int order, t_philo *philo)
 		printf(FORK_MESSAGE, time, philo->id);
 		printf(EATING_MESSAGE, time, philo->id);
 		philo->count_meals++;
+		philo->last_time_eat = get_curr_time();
 		pthread_mutex_unlock(&philo->data->mutex_printf);
-		usleep(philo->data->time_to_eat * 1000); // -make ur msleep  ,
+		wait_sleep(philo->data->time_to_eat , philo);
 	}
 	else
 		complete_printing(order, philo);
@@ -98,11 +112,11 @@ void mutex_lock_unlock_even(t_philo *philo, int key)
 		print_situation(TAKE_FORK1, philo);
 		pthread_mutex_lock(philo->left_fork);
 		print_situation(TAKE_FORK2, philo);
-		pthread_mutex_lock (&philo->data->mutex_lst_eat);
+		// pthread_mutex_lock (&philo->data->mutex_lst_eat);
 	}
 	else if (key == UNLOCK)
 	{
-		pthread_mutex_unlock(&philo->data->mutex_lst_eat);
+		// pthread_mutex_unlock(&philo->data->mutex_lst_eat);
 		pthread_mutex_unlock(philo->right_fork);
 		pthread_mutex_unlock(philo->left_fork);
 	}
@@ -116,11 +130,11 @@ void mutex_lock_unlock_odd(t_philo *philo, int key)
 		print_situation(TAKE_FORK1, philo);
 		pthread_mutex_lock(philo->right_fork);
 		print_situation(TAKE_FORK2, philo);
-		pthread_mutex_lock (&philo->data->mutex_lst_eat);
+		// pthread_mutex_lock (&philo->data->mutex_lst_eat);
 	}
 	else if (key == UNLOCK)
 	{
-		pthread_mutex_unlock(&philo->data->mutex_lst_eat);
+		// pthread_mutex_unlock(&philo->data->mutex_lst_eat);
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
 	}
@@ -151,13 +165,13 @@ void *routine(void *dta)
 		if (philo->id % 2 == 0)
 		{
 			mutex_lock_unlock_even(philo, LOCK);
-			philo->last_time_eat = get_curr_time();
+			// philo->last_time_eat = get_curr_time();
 			mutex_lock_unlock_even(philo, UNLOCK);
 		}
 		else
 		{
 			mutex_lock_unlock_odd(philo, LOCK);
-			philo->last_time_eat = get_curr_time();
+			// philo->last_time_eat = get_curr_time();
 			mutex_lock_unlock_odd(philo, UNLOCK);
 		}
 		print_situation(SLEEPING, philo);
@@ -185,7 +199,7 @@ void	*check_death(void *arg)
 		}
 		if (data->philo[i].id == data->nb_philo)
 			i = -1;
-		usleep(data->time_to_die  * 1000);
+		usleep(data->time_to_die);
 	}
 	return (NULL);
 }
