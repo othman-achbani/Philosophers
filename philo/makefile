@@ -2,7 +2,7 @@ SRCS = parsing_utils.c philo.c libft_functions.c mutex_lock_unlock.c printing_an
 		free.c
 
 RM	= rm -rf
-CFLAGS = -Wall -Wextra -Werror -pthread -g3 #-fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -pthread -g3 -fsanitize=thread
 CC = cc
 OBJF = $(SRCS:.c=.o)
 NAME = philo

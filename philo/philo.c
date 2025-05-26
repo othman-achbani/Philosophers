@@ -6,15 +6,21 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:24:27 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 11:27:06 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/26 19:13:11 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-
 int should_quit(t_philo *philo)
 {
+	pthread_mutex_lock(&philo->data->mutex_meal);
+	if (philo->data->nb_eat_time != -1 && philo->count_meals >= philo->data->nb_eat_time)
+	{
+		pthread_mutex_unlock(&philo->data->mutex_meal);
+		return(1);
+	}
+	pthread_mutex_unlock(&philo->data->mutex_meal);
 	pthread_mutex_lock(&philo->data->mutex_death);
 	if (philo->data->is_dead == YES)
 	{
@@ -22,8 +28,16 @@ int should_quit(t_philo *philo)
 		return (1);
 	}
 	pthread_mutex_unlock(&philo->data->mutex_death);
-	if (philo->data->nb_eat_time != -1 && philo->count_meals == philo->data->nb_eat_time)
+	return (0);
+}
+
+int	check_nothing(t_philo *philo)
+{
+	if (philo->data->is_dead == YES)
+	{
+		pthread_mutex_unlock(&philo->data->mutex_printf);
 		return (1);
+	}
 	return (0);
 }
 
@@ -35,19 +49,31 @@ void *routine(void *dta)
 		usleep(100);
 	while (!should_quit(philo))
 	{
+		pthread_mutex_lock(&philo->data->wake_up);
 		if (philo->id % 2 == 0)
 		{
 			mutex_lock_unlock_even(philo, LOCK);
-			mutex_lock_unlock_even(philo, UNLOCK);
 		}
 		else
 		{
 			mutex_lock_unlock_odd(philo, LOCK);
-			mutex_lock_unlock_odd(philo, UNLOCK);
 		}
-		print_situation(SLEEPING, philo);
-		usleep(500);
-		print_situation(THINKING, philo);
+		pthread_mutex_unlock(&philo->data->wake_up);
+		pthread_mutex_lock(&philo->data->mutex_printf);
+		if (check_nothing(philo))
+			break;
+		printf(EATING_MESSAGE , get_curr_time() - philo->data->start_time, philo->id);
+		pthread_mutex_unlock(&philo->data->mutex_printf);
+		wait_sleep(philo->data->time_to_eat , philo);
+		if (philo->id % 2 == 0)
+			mutex_lock_unlock_even(philo, UNLOCK);
+		else
+			mutex_lock_unlock_odd(philo, UNLOCK);
+		if (print_situation(SLEEPING, philo) == -1)
+			break;
+		usleep(1000);
+		if (print_situation(THINKING, philo) == -1)
+			break;
 	}
 	return (NULL);
 }
@@ -64,15 +90,24 @@ void	*check_death(void *arg)
 	{
 		usleep(1000);
 		i++;
+		pthread_mutex_lock(&data->mutex_meal);
+		if (data->nb_eat_time != -1 && data->philo[i].count_meals >= data->nb_eat_time)
+		{
+			pthread_mutex_unlock(&data->mutex_meal);
+			break ;
+		}
+		pthread_mutex_unlock(&data->mutex_meal);
 		pthread_mutex_lock(&data->mutex_lst_eat);
-		time_eat = data->philo->last_time_eat;
+		time_eat = data->philo[i].last_time_eat;
 		pthread_mutex_unlock(&data->mutex_lst_eat);
 		if (get_curr_time() - time_eat >(unsigned long) data->time_to_die)
 		{
 			pthread_mutex_lock(&data->mutex_death);
 			data->is_dead = YES;
-			printf(DEAD_MESSAGE, get_curr_time() - data->start_time, data->philo[i].id);
 			pthread_mutex_unlock(&data->mutex_death);
+			pthread_mutex_lock(&data->mutex_printf);
+			printf(DEAD_MESSAGE, get_curr_time() - data->start_time, data->philo[i].id);
+			pthread_mutex_unlock(&data->mutex_printf);
 		}
 		if (data->philo[i].id == data->nb_philo)
 			i = -1;

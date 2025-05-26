@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 09:48:28 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 11:05:02 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/26 19:03:28 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,37 @@ int init_mutex(t_data *philo)
 			return (FAIL);
 		}
 	}
+	pthread_mutex_init(&philo->mutex_meal, NULL);
 	pthread_mutex_init(&philo->mutex_printf, NULL);
 	pthread_mutex_init(&philo->mutex_lst_eat, NULL);
 	pthread_mutex_init(&philo->mutex_death, NULL);
+	pthread_mutex_init(&philo->wake_up, NULL);
 	return (0);
 }
 
 void	wait_sleep(int	sleep_time, t_philo *philo)
 {
-	long	start;
+	// long	start;
 
-	start = get_curr_time();
-	while(get_curr_time() - start <= sleep_time)
-	{
-		if (should_quit(philo))
-			break;
-		usleep(100);
-	}
+	// start = get_curr_time();
+	// while(get_curr_time() - start <= sleep_time)
+	// {
+	// 	if (should_quit(philo))
+	// 		break;
+	// 	usleep(100);
+	// }
+    long long    current_time;
+
+    (void)philo;
+    current_time = get_curr_time(philo);
+    while (1)
+    {
+        if (should_quit(philo))
+            break;
+        if (get_curr_time(philo) >= sleep_time + current_time)
+            break;
+        usleep(500);
+    }
 }
 
 long get_curr_time()
@@ -63,9 +77,11 @@ void mutex_lock_unlock_even(t_philo *philo, int key)
 	if (key == LOCK)
 	{
 		pthread_mutex_lock(philo->right_fork);
-		print_situation(TAKE_FORK1, philo);
+		if (print_situation(TAKE_FORK1, philo) == -1)
+			return ;
 		pthread_mutex_lock(philo->left_fork);
-		print_situation(TAKE_FORK2, philo);
+		if(print_situation(TAKE_FORK2, philo) == -1)
+			return ;
 	}
 	else if (key == UNLOCK)
 	{
@@ -79,9 +95,11 @@ void mutex_lock_unlock_odd(t_philo *philo, int key)
 	if (key == LOCK)
 	{
 		pthread_mutex_lock(philo->left_fork);
-		print_situation(TAKE_FORK1, philo);
+		if (print_situation(TAKE_FORK1, philo) == -1)
+			return ;
 		pthread_mutex_lock(philo->right_fork);
-		print_situation(TAKE_FORK2, philo);
+		if(print_situation(TAKE_FORK2, philo) == -1)
+			return ;
 	}
 	else if (key == UNLOCK)
 	{
