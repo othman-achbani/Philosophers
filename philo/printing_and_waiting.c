@@ -6,80 +6,78 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 09:45:57 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 17:33:07 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/26 20:11:33 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	complete_printing_v2(int order, t_philo *philo)
+void	complete_printing_v2(int order, t_philo *philo)
 {
 	long	time;
 
 	if (order == TAKE_FORK1)
 	{
-		time = get_curr_time() - philo->data->start_time;
-
 		pthread_mutex_lock(&philo->data->mutex_printf);
-		if (should_quit	(philo))
-		{
-			pthread_mutex_unlock(&philo->data->mutex_printf);
-			return -1 ;
-		}
+		// if (should_quit	(philo))
+		// {
+		// 	pthread_mutex_unlock(&philo->data->mutex_printf);
+		// 	return ;
+		// }
+		time = get_curr_time() - philo->data->start_time;
 		printf(FORK_MESSAGE, time, philo->id);
 		pthread_mutex_unlock(&philo->data->mutex_printf);
 	}
-	return (0);
 }
 
-int complete_printing(int order, t_philo *philo)
+void complete_printing(int order, t_philo *philo)
 {
 	long time;
 
 	if (order == THINKING)
 	{
-		time = get_curr_time() - philo->data->start_time;
 		pthread_mutex_lock(&philo->data->mutex_printf);
-		if (should_quit(philo))
-		{
-			pthread_mutex_unlock(&philo->data->mutex_printf);
-			return -1 ;
-		}
+		// if (should_quit(philo))
+		// {
+		// 	pthread_mutex_unlock(&philo->data->mutex_printf);
+		// 	return ;
+		// }
+		time = get_curr_time() - philo->data->start_time;
 		printf(THINKING_MESSAGE, time, philo->id);
 		pthread_mutex_unlock(&philo->data->mutex_printf);
 	}
 	if (order == SLEEPING)
 	{
-		time = get_curr_time() - philo->data->start_time;
 		pthread_mutex_lock(&philo->data->mutex_printf);
-		if (should_quit	(philo))
-		{
-			pthread_mutex_unlock(&philo->data->mutex_printf);
-			return -1;
-		}
+		// if (should_quit	(philo))
+		// {
+		// 	pthread_mutex_unlock(&philo->data->mutex_printf);
+		// 	return ;
+		// }
+		time = get_curr_time() - philo->data->start_time;
 		printf(SLEEPING_MESSAGE, time, philo->id);
 		pthread_mutex_unlock(&philo->data->mutex_printf);
 		wait_sleep(philo->data->time_to_sleep , philo);
 	}
 	else
-		return(complete_printing_v2(order, philo));
-	return (0);
+		complete_printing_v2(order, philo);
 }
 
-int	print_situation(int order, t_philo *philo)
+void	print_situation(int order, t_philo *philo)
 {
 	long time;
 
 	if (should_quit	(philo))
-			return -1;
+			return ;
 	if (order == TAKE_FORK2)
 	{
-		time = get_curr_time() - philo->data->start_time;
-		if (should_quit(philo))
-		{
-			return -1;
-		}
 		pthread_mutex_lock(&philo->data->mutex_printf);
+		// if (should_quit(philo))
+		// {
+		// 	pthread_mutex_unlock(&philo->data->mutex_printf);
+		// 	return ;
+		// }
+		time = get_curr_time() - philo->data->start_time;
 		printf(FORK_MESSAGE, time, philo->id);
 		pthread_mutex_unlock(&philo->data->mutex_printf);
 		// printf(EATING_MESSAGE, time, philo->id);
@@ -92,6 +90,5 @@ int	print_situation(int order, t_philo *philo)
 		// wait_sleep(philo->data->time_to_eat , philo);
 	}
 	else
-		return(complete_printing(order, philo));
-	return (1);
+		complete_printing(order, philo);
 }

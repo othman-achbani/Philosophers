@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 09:48:28 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 19:03:28 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/26 19:18:42 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,9 @@ void mutex_lock_unlock_even(t_philo *philo, int key)
 	if (key == LOCK)
 	{
 		pthread_mutex_lock(philo->right_fork);
-		if (print_situation(TAKE_FORK1, philo) == -1)
-			return ;
+		print_situation(TAKE_FORK1, philo);
 		pthread_mutex_lock(philo->left_fork);
-		if(print_situation(TAKE_FORK2, philo) == -1)
-			return ;
+		print_situation(TAKE_FORK2, philo);
 	}
 	else if (key == UNLOCK)
 	{
@@ -95,11 +93,9 @@ void mutex_lock_unlock_odd(t_philo *philo, int key)
 	if (key == LOCK)
 	{
 		pthread_mutex_lock(philo->left_fork);
-		if (print_situation(TAKE_FORK1, philo) == -1)
-			return ;
+		print_situation(TAKE_FORK1, philo);
 		pthread_mutex_lock(philo->right_fork);
-		if(print_situation(TAKE_FORK2, philo) == -1)
-			return ;
+		print_situation(TAKE_FORK2, philo);
 	}
 	else if (key == UNLOCK)
 	{

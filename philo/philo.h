@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:25:05 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 17:29:45 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/26 19:17:11 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,9 @@ void	fill_private_philo_data(t_data *data);
 long ft_atoi(char *str);
 int ft_isdigit(int c);
 long get_curr_time();
-int	 	print_situation(int order, t_philo *philo);
-int	 complete_printing(int order, t_philo *philo);
-int		complete_printing_v2(int order, t_philo *philo);
+void 	print_situation(int order, t_philo *philo);
+void complete_printing(int order, t_philo *philo);
+void	complete_printing_v2(int order, t_philo *philo);
 
 
 #endif
