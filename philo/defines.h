@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:42:24 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/24 17:00:25 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/27 08:17:55 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@
 #define MUTEX_FAIL "Error : the mutex fail to initialise try again\n"
 #define MALLOC_FAIL "Error : the malloc just faild\n"
 #define THREAD_FAIL "Error : failed to create a thread\n"
-#define	FORK_MESSAGE "%ld : %d has taken a fork\n"
-#define	EATING_MESSAGE "%ld : %d is eating\n"
-#define	SLEEPING_MESSAGE "%ld : %d is sleeping\n"
-#define THINKING_MESSAGE "%ld : %d is thinking\n"
-#define DEAD_MESSAGE "%ld : %d died\n"
+#define	FORK_MESSAGE "has taken a fork\n"
+#define	EATING_MESSAGE "is eating\n"
+#define	SLEEPING_MESSAGE "is sleeping\n"
+#define THINKING_MESSAGE "is thinking\n"
+#define DEAD_MESSAGE "died\n"
 
 #endif

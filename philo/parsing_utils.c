@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:30:52 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/24 17:36:54 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/27 08:37:27 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,16 +83,17 @@ t_data *fill_struct(char **av)
 
 void	get_time(t_data **data)
 {
-	struct timeval	time;
 	int				i;
 
+	(*data)->start_time =  get_curr_time();
+
 	i = -1;
+
 	while (++i < (*data)->nb_philo)
 	{
-		(*data)->philo[i].last_time_eat = get_curr_time();
+		(*data)->philo[i].last_time_eat = (*data)->start_time;
 	}
-	gettimeofday(&time, NULL);
-	(*data)->start_time = (time.tv_sec * 1000) + (time.tv_usec / 1000);
+
 }
 
 t_data *ft_parsing(int ac, char **av)

@@ -1,5 +1,4 @@
-SRCS = parsing_utils.c philo.c libft_functions.c mutex_lock_unlock.c printing_and_waiting.c\
-		free.c
+SRCS = parsing_utils.c philo.c libft_functions.c mutex_lock_unlock.c free.c
 
 RM	= rm -rf
 CFLAGS = -Wall -Wextra -Werror -pthread -g3 -fsanitize=thread

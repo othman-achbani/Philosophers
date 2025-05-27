@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:25:05 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/26 19:17:11 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/27 08:34:27 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,6 @@ struct s_data
 void	ft_destroy(t_data *philo);
 int init_mutex(t_data *philo);
 void	wait_sleep(int	sleep_time, t_philo *philo);
-void mutex_lock_unlock_even(t_philo *philo, int key);
-void mutex_lock_unlock_odd(t_philo *philo, int key);
-int should_quit(t_philo *philo);
 void	get_time(t_data **data);
 int check_arg(char *str, int key);
 t_data *ft_parsing(int ac, char **av);
@@ -69,9 +66,8 @@ void	fill_private_philo_data(t_data *data);
 long ft_atoi(char *str);
 int ft_isdigit(int c);
 long get_curr_time();
-void 	print_situation(int order, t_philo *philo);
-void complete_printing(int order, t_philo *philo);
-void	complete_printing_v2(int order, t_philo *philo);
+int is_finish(t_data *data);
+
 
 
 #endif
