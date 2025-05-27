@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 09:48:28 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 08:33:05 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/27 14:40:35 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int init_mutex(t_data *philo)
 		if (checker != 0)
 		{
 			while (--i >= 0)
-			pthread_mutex_destroy(&philo->mutex[i]);
+				pthread_mutex_destroy(&philo->mutex[i]);
 			free(philo->mutex);
 			free(philo->philo);
 			free(philo);
@@ -39,16 +39,16 @@ int init_mutex(t_data *philo)
 	return (0);
 }
 
-void	wait_sleep(int	sleep_time, t_philo *philo)
+void wait_sleep(int sleep_time, t_philo *philo)
 {
-	long	start;
+	long start;
 
 	start = get_curr_time();
-	while(get_curr_time() - start <= sleep_time)
+	while (get_curr_time() - start < sleep_time)
 	{
+		usleep(200);
 		if (is_finish(philo->data))
-			break;
-		usleep(100);
+			return;
 	}
 }
 
@@ -56,7 +56,7 @@ long get_curr_time()
 {
 	struct timeval time;
 
-	gettimeofday(&time, NULL);
-	return ((long)(time.tv_sec * 1000) + (time.tv_usec / 1000));
+	if (gettimeofday(&time, NULL) == -1)
+		return (0);
+	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
-

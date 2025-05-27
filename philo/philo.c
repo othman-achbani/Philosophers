@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:24:27 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 08:39:29 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:43:06 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,18 @@ int is_finish(t_data *data)
 }
 void ft_printf(t_philo *philo, char *msg)
 {
-	unsigned long current_time;
+    unsigned long current_time;
 
-	pthread_mutex_lock(&philo->data->mutex_printf);
-	if (!is_finish(philo->data))
-	{
-		pthread_mutex_unlock(&philo->data->mutex_printf);
-		return ;
-	}
+    pthread_mutex_lock(&philo->data->mutex_printf);
+    if (is_finish(philo->data))
+    {
+        pthread_mutex_unlock(&philo->data->mutex_printf);
+        return;
+    }
 
-	current_time = get_curr_time();
-	printf("%ld  %d  %s", current_time - philo->data->start_time, philo->id, msg);
-	pthread_mutex_unlock(&philo->data->mutex_printf);
+    current_time = get_curr_time();
+    printf("%lu %d %s", current_time - philo->data->start_time, philo->id, msg);
+    pthread_mutex_unlock(&philo->data->mutex_printf);
 }
 
 void get_forks(t_philo *philo)
@@ -80,17 +80,17 @@ void *routine(void *dta)
 	while (!is_finish(philo->data))
 	{
 		get_forks(philo);
-
+		ft_printf(philo, EATING_MESSAGE);
 		pthread_mutex_lock(&philo->data->mutex_lst_eat);
 		philo->last_time_eat = get_curr_time();
 		pthread_mutex_unlock(&philo->data->mutex_lst_eat);
-		ft_printf(philo, EATING_MESSAGE);
+		pthread_mutex_lock(&philo->data->mutex_meal);
+		philo->count_meals++;
+		pthread_mutex_unlock(&philo->data->mutex_meal);
 		wait_sleep(philo->data->time_to_eat, philo);
-
 		put_forks(philo);
 		ft_printf(philo, SLEEPING_MESSAGE);
 		wait_sleep(philo->data->time_to_sleep, philo);
-
 		ft_printf(philo, THINKING_MESSAGE);
 	}
 	return (NULL);
@@ -103,31 +103,42 @@ void *check_death(void *arg)
 	unsigned long time_eat;
 
 	data = (t_data *)arg;
-
 	while (!is_finish(data))
 	{
-		usleep(100);
 		i = 0;
-		while (i < data->nb_philo)
+		while (i < data->nb_philo && !is_finish(data))
 		{
 			pthread_mutex_lock(&data->mutex_lst_eat);
-			time_eat = get_curr_time()- data->philo[i].last_time_eat;
+			time_eat = get_curr_time() - data->philo[i].last_time_eat;
 			pthread_mutex_unlock(&data->mutex_lst_eat);
-
-			if ( time_eat >= (unsigned long)data->time_to_die)
+			if (time_eat > (unsigned long)data->time_to_die)
 			{
 				pthread_mutex_lock(&data->mutex_death);
 				data->is_dead = YES;
 				pthread_mutex_unlock(&data->mutex_death);
-
 				pthread_mutex_lock(&data->mutex_printf);
-				printf("%ld %d is died\n", get_curr_time() - data->start_time, data->philo[i].id);
+				printf("%lu %d %s", get_curr_time() - data->start_time, data->philo[i].id, DEAD_MESSAGE);
 				pthread_mutex_unlock(&data->mutex_printf);
-
 				return (NULL);
 			}
 			i++;
 		}
+		i =0;
+		pthread_mutex_lock(&data->mutex_meal);
+		while(data->nb_eat_time != -1 &&  i < data->nb_philo)
+		{
+			if (data->philo[i].count_meals < data->nb_eat_time)
+				break;
+			i++;
+		}
+		pthread_mutex_unlock(&data->mutex_meal);
+		if (i == data->nb_philo)
+		{
+			pthread_mutex_lock(&data->mutex_death);
+			data->is_dead = YES;
+			pthread_mutex_unlock(&data->mutex_death);
+		}
+		wait_sleep(500, data->philo);
 	}
 	return (NULL);
 }
