@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:25:05 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 08:34:27 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:55:42 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	ft_destroy(t_data *philo);
 int init_mutex(t_data *philo);
 void	wait_sleep(int	sleep_time, t_philo *philo);
 void	get_time(t_data **data);
-int check_arg(char *str, int key);
+int check_arg(char *str);
 t_data *ft_parsing(int ac, char **av);
 t_data *fill_struct(char **av);
 void	fill_private_philo_data(t_data *data);

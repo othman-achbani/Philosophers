@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:24:27 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 13:43:06 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:05:45 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,11 @@ void *routine(void *dta)
 {
 	t_philo *philo = (t_philo *)dta;
 
-	if (philo->id % 2 == 0)
-		usleep(100);
+
 	while (!is_finish(philo->data))
 	{
+		if (philo->id % 2 != 0)
+			usleep(500);
 		get_forks(philo);
 		ft_printf(philo, EATING_MESSAGE);
 		pthread_mutex_lock(&philo->data->mutex_lst_eat);
@@ -94,6 +95,37 @@ void *routine(void *dta)
 		ft_printf(philo, THINKING_MESSAGE);
 	}
 	return (NULL);
+}
+
+void	print_modify_death(t_data *data , int i)
+{
+	pthread_mutex_lock(&data->mutex_death);
+	data->is_dead = YES;
+	pthread_mutex_unlock(&data->mutex_death);
+	pthread_mutex_lock(&data->mutex_printf);
+	printf("%lu %d %s", get_curr_time() - data->start_time, data->philo[i].id, DEAD_MESSAGE);
+	pthread_mutex_unlock(&data->mutex_printf);
+}
+
+void	check_meal_count(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	pthread_mutex_lock(&data->mutex_meal);
+	while(data->nb_eat_time != -1 &&  i < data->nb_philo)
+	{
+		if (data->philo[i].count_meals < data->nb_eat_time)
+			break;
+		i++;
+	}
+	pthread_mutex_unlock(&data->mutex_meal);
+	if (i == data->nb_philo)
+	{
+		pthread_mutex_lock(&data->mutex_death);
+		data->is_dead = YES;
+		pthread_mutex_unlock(&data->mutex_death);
+	}
 }
 
 void *check_death(void *arg)
@@ -113,32 +145,13 @@ void *check_death(void *arg)
 			pthread_mutex_unlock(&data->mutex_lst_eat);
 			if (time_eat > (unsigned long)data->time_to_die)
 			{
-				pthread_mutex_lock(&data->mutex_death);
-				data->is_dead = YES;
-				pthread_mutex_unlock(&data->mutex_death);
-				pthread_mutex_lock(&data->mutex_printf);
-				printf("%lu %d %s", get_curr_time() - data->start_time, data->philo[i].id, DEAD_MESSAGE);
-				pthread_mutex_unlock(&data->mutex_printf);
+				print_modify_death(data, i);
 				return (NULL);
 			}
 			i++;
 		}
-		i =0;
-		pthread_mutex_lock(&data->mutex_meal);
-		while(data->nb_eat_time != -1 &&  i < data->nb_philo)
-		{
-			if (data->philo[i].count_meals < data->nb_eat_time)
-				break;
-			i++;
-		}
-		pthread_mutex_unlock(&data->mutex_meal);
-		if (i == data->nb_philo)
-		{
-			pthread_mutex_lock(&data->mutex_death);
-			data->is_dead = YES;
-			pthread_mutex_unlock(&data->mutex_death);
-		}
-		wait_sleep(500, data->philo);
+		check_meal_count(data);
+		// wait_sleep(500, data->philo);
 	}
 	return (NULL);
 }

@@ -6,13 +6,13 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:30:52 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 08:37:27 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/28 14:39:02 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int check_arg(char *str, int key)
+int check_arg(char *str)
 {
 	int i;
 
@@ -34,8 +34,8 @@ int check_arg(char *str, int key)
 		}
 	if (ft_atoi(str) > INT_MAX || ft_atoi(str) <= 0)
 	{
-		if (key == 5 && ft_atoi(str) == 0)
-			return(0);
+		// if (key == 5 && ft_atoi(str) == 0)
+		// 	return(0);
 		return (printf(NOT_LOGIC), -1);
 	}
 	return (0);
@@ -88,7 +88,6 @@ void	get_time(t_data **data)
 	(*data)->start_time =  get_curr_time();
 
 	i = -1;
-
 	while (++i < (*data)->nb_philo)
 	{
 		(*data)->philo[i].last_time_eat = (*data)->start_time;
@@ -109,7 +108,7 @@ t_data *ft_parsing(int ac, char **av)
 		return (NULL);
 	}
 	while (av[++i])
-		if (check_arg(av[i], i) == -1)
+		if (check_arg(av[i]) == -1)
 			return (NULL);
 	philo = fill_struct(av);
 	return (philo);

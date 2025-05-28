@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 09:48:28 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/27 14:40:35 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/28 16:05:24 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void wait_sleep(int sleep_time, t_philo *philo)
 	start = get_curr_time();
 	while (get_curr_time() - start < sleep_time)
 	{
-		usleep(200);
+		usleep(100);
 		if (is_finish(philo->data))
 			return;
 	}
