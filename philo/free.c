@@ -17,7 +17,7 @@ void	ft_destroy(t_data *philo)
 	int	i;
 
 	i = -1;
-	while( philo->mutex && ++i < philo->nb_philo)
+	while (philo->mutex && ++i < philo->nb_philo)
 	{
 		pthread_mutex_destroy(&philo->mutex[i]);
 	}

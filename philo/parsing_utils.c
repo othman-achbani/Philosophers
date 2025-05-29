@@ -6,15 +6,15 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 11:30:52 by oachbani          #+#    #+#             */
-/*   Updated: 2025/05/28 14:39:02 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/29 09:57:21 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int check_arg(char *str)
+int	check_arg(char *str)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	if (str[0] == '-' || str[0] == '+')
@@ -27,15 +27,15 @@ int check_arg(char *str)
 		i = 0;
 	}
 	while (str[++i])
+	{
 		if (!ft_isdigit(str[i]))
 		{
 			printf(NOT_VALID);
 			return (-1);
 		}
+	}
 	if (ft_atoi(str) > INT_MAX || ft_atoi(str) <= 0)
 	{
-		// if (key == 5 && ft_atoi(str) == 0)
-		// 	return(0);
 		return (printf(NOT_LOGIC), -1);
 	}
 	return (0);
@@ -46,20 +46,20 @@ void	fill_private_philo_data(t_data *data)
 	int	i;
 
 	i = -1;
-	while(++i < data->nb_philo)
+	while (++i < data->nb_philo)
 	{
 		data->philo[i].id = i + 1;
 		data->philo[i].count_meals = 0;
 		data->philo[i].last_time_eat = get_curr_time();
 		data->philo[i].data = data;
 		data->philo[i].left_fork = &data->mutex[i];
-		data->philo[i].right_fork = &data->mutex[(i + 1) %  data->nb_philo];
+		data->philo[i].right_fork = &data->mutex[(i + 1) % data->nb_philo];
 	}
 }
 
-t_data *fill_struct(char **av)
+t_data	*fill_struct(char **av)
 {
-	t_data *philo;
+	t_data	*philo;
 
 	philo = (t_data *)malloc(sizeof(t_data));
 	if (!philo)
@@ -83,22 +83,20 @@ t_data *fill_struct(char **av)
 
 void	get_time(t_data **data)
 {
-	int				i;
+	int	i;
 
-	(*data)->start_time =  get_curr_time();
-
+	(*data)->start_time = get_curr_time();
 	i = -1;
 	while (++i < (*data)->nb_philo)
 	{
 		(*data)->philo[i].last_time_eat = (*data)->start_time;
 	}
-
 }
 
-t_data *ft_parsing(int ac, char **av)
+t_data	*ft_parsing(int ac, char **av)
 {
-	int i;
-	t_data *philo;
+	int		i;
+	t_data	*philo;
 
 	i = 0;
 	philo = NULL;
